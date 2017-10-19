@@ -9,6 +9,9 @@ from model import Model
 from utils import *
 from sample import *
 
+from faker import Faker
+faker = Faker()
+
 def main():
 	parser = argparse.ArgumentParser()
 
@@ -21,7 +24,7 @@ def main():
 
 	# window params
 	parser.add_argument('--kmixtures', type=int, default=1, help='number of gaussian mixtures for character window')
-	parser.add_argument('--alphabet', type=str, default=' abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', \
+	parser.add_argument('--alphabet', type=str, default=' abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@.0123456789_-', \
 						help='default is a-z, A-Z, space, and <UNK> tag')
 	parser.add_argument('--tsteps_per_ascii', type=int, default=25, help='expected number of pen points per character')
 
@@ -111,8 +114,10 @@ def train_model(args):
 
 def sample_model(args, logger=None):
 	if args.text == '':
-		strings = ['call me ishmael some years ago', 'A project by Sam Greydanus', 'mmm mmm mmm mmm mmm mmm mmm', \
-			'What I cannot create I do not understand', 'You know nothing Jon Snow'] # test strings
+		strings = []
+		for i in range(20):
+			print(i)
+			strings.append(generate_line())
 	else:
 		strings = [args.text]
 
@@ -130,12 +135,12 @@ def sample_model(args, logger=None):
 		for s in strings:
 			strokes, phis, windows, kappas = sample(s, model, args)
 
-			w_save_path = '{}figures/iter-{}-w-{}'.format(args.log_dir, global_step, s[:10].replace(' ', '_'))
-			g_save_path = '{}figures/iter-{}-g-{}'.format(args.log_dir, global_step, s[:10].replace(' ', '_'))
+			# w_save_path = '{}figures/iter-{}-w-{}'.format(args.log_dir, global_step, s[:10].replace(' ', '_'))
+			# g_save_path = '{}figures/iter-{}-g-{}'.format(args.log_dir, global_step, s[:10].replace(' ', '_'))
 			l_save_path = '{}figures/iter-{}-l-{}'.format(args.log_dir, global_step, s[:10].replace(' ', '_'))
 
-			window_plots(phis, windows, save_path=w_save_path)
-			gauss_plot(strokes, 'Heatmap for "{}"'.format(s), figsize = (2*len(s),4), save_path=g_save_path)
+			# window_plots(phis, windows, save_path=w_save_path)
+			# gauss_plot(strokes, 'Heatmap for "{}"'.format(s), figsize = (2*len(s),4), save_path=g_save_path)
 			line_plot(strokes, 'Line plot for "{}"'.format(s), figsize = (len(s),2), save_path=l_save_path)
 
 			# make sure that kappas are reasonable
@@ -147,6 +152,9 @@ def sample_model(args, logger=None):
 		tf.reset_default_graph()
 		time.sleep(args.sleep_time)
 		sample_model(args, logger=logger)
+
+def generate_line():
+	return faker.email() + " " + faker.name()
 
 if __name__ == '__main__':
 	main()
