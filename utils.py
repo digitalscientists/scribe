@@ -50,12 +50,19 @@ class DataLoader():
 
             x_offset = 1e20
             y_offset = 1e20
-            y_height = 0
+            # y_height = 0
             for i in range(1, 4):
-                x_offset = min(x_offset, float(root[0][i].attrib['x']))
-                y_offset = min(y_offset, float(root[0][i].attrib['y']))
-                y_height = max(y_height, float(root[0][i].attrib['y']))
-            y_height -= y_offset
+                if(len(root[0]) > i):
+                    # iam db require sensor location offset
+                    x_offset = min(x_offset, float(root[0][i].attrib['x']))
+                    y_offset = min(y_offset, float(root[0][i].attrib['y']))
+                    # y_height = max(y_height, float(root[0][i].attrib['y']))
+                else:
+                    # no offset needed when we capture the text
+                    x_offset = 100
+                    y_offset = 100
+
+            # y_height -= y_offset
             x_offset -= 100
             y_offset -= 100
 
@@ -67,15 +74,24 @@ class DataLoader():
             return result
         
         # function to read each individual xml file
-        def getAscii(filename, line_number):
-            with open(filename, "r") as f:
-                s = f.read()
-            s = s[s.find("CSR"):]
-            if len(s.split("\n")) > line_number+2:
-                s = s.split("\n")[line_number+2]
-                return s
-            else:
-                return ""
+        def getAscii(filename, line_number, stroke_filename):
+            try:
+                with open(filename, "r") as f:
+                    s = f.read()
+                s = s[s.find("CSR"):]
+                if len(s.split("\n")) > line_number+2:
+                    s = s.split("\n")[line_number+2]
+                    return s
+                else:
+                    return ""                    
+            except:                
+                rsg_stroke_filename = stroke_filename.replace('lineStrokes', 'ascii').replace('xml', 'txt')
+                with open(rsg_stroke_filename, "r") as f:
+                    s = f.read()
+
+                s = s[s.find("CSR"):]
+                s = s.split("\n")[1]
+                return s                 
                 
         # converts a list of arrays into a 2d numpy int16 array
         def convert_stroke_to_array(stroke):
@@ -106,13 +122,13 @@ class DataLoader():
         for i in range(len(filelist)):
             if (filelist[i][-3:] == 'xml'):
                 stroke_file = filelist[i]
-#                 print 'processing '+stroke_file
+                # print 'processing '+stroke_file
                 stroke = convert_stroke_to_array(getStrokes(stroke_file))
                 
                 ascii_file = stroke_file.replace("lineStrokes","ascii")[:-7] + ".txt"
                 line_number = stroke_file[-6:-4]
                 line_number = int(line_number) - 1
-                ascii = getAscii(ascii_file, line_number)
+                ascii = getAscii(ascii_file, line_number, filelist[i])
                 if len(ascii) > 10:
                     strokes.append(stroke)
                     asciis.append(ascii)
