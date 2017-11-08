@@ -1,4 +1,7 @@
 *.pyc
-data
+data/ascii*
+data/images*
+data/lineStrokes*
 logs
 saved
+old_saved

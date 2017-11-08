@@ -52,7 +52,7 @@ class DataLoader():
             y_offset = 1e20
             # y_height = 0
             for i in range(1, 4):
-                if(len(root[0]) > i):
+                if(len(root[0]) > 1):
                     # iam db require sensor location offset
                     x_offset = min(x_offset, float(root[0][i].attrib['x']))
                     y_offset = min(y_offset, float(root[0][i].attrib['y']))
@@ -129,6 +129,12 @@ class DataLoader():
                 line_number = stroke_file[-6:-4]
                 line_number = int(line_number) - 1
                 ascii = getAscii(ascii_file, line_number, filelist[i])
+                # print('Stroke File:')
+                # print(stroke_file)
+                # print('Ascii File:')
+                # print(ascii_file)
+                # print('Ascii:')
+                # print(ascii)
                 if len(ascii) > 10:
                     strokes.append(stroke)
                     asciis.append(ascii)
