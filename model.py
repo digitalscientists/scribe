@@ -211,7 +211,8 @@ class Model():
 			ckpt = tf.train.get_checkpoint_state(save_dir)
 			load_path = ckpt.model_checkpoint_path
 			self.saver.restore(self.sess, load_path)
-		except:
+		except StandardError as error:
+			print(error)
 			self.logger.write("no saved model to load. starting new session")
 			load_was_success = False
 		else:

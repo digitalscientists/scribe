@@ -109,7 +109,7 @@ def train_model(args):
 			running_average = running_average*remember_rate + train_loss*(1-remember_rate)
 
 			end = time.time()
-			if i % 10 is 0: logger.write("{}/{}, loss = {:.3f}, regloss = {:.5f}, valid_loss = {:.3f}, time = {:.3f}" \
+			if i % 100 is 0: logger.write("{}/{}, loss = {:.3f}, regloss = {:.5f}, valid_loss = {:.3f}, time = {:.3f}" \
 				.format(i, args.nepochs * args.nbatches, train_loss, running_average, valid_loss, end - start) )
 
 def sample_model(args, logger=None):
@@ -157,7 +157,7 @@ def sample_model(args, logger=None):
 
 def generate_line():
 	if True: #random.randrange(0, 1) > 0.3):
-		return faker.email()
+		return faker.name()
 		#return "allen66@gmail.com"
 	else:
 		return faker.name()

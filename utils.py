@@ -43,35 +43,37 @@ class DataLoader():
 
         # function to read each individual xml file
         def getStrokes(filename):
-            tree = ET.parse(filename)
-            root = tree.getroot()
-
             result = []
+            try:
+                tree = ET.parse(filename)
+                root = tree.getroot()
 
-            x_offset = 1e20
-            y_offset = 1e20
-            # y_height = 0
-            for i in range(1, 4):
-                if(len(root[0]) > 1):
-                    # iam db require sensor location offset
-                    x_offset = min(x_offset, float(root[0][i].attrib['x']))
-                    y_offset = min(y_offset, float(root[0][i].attrib['y']))
-                    # y_height = max(y_height, float(root[0][i].attrib['y']))
-                else:
-                    # no offset needed when we capture the text
-                    x_offset = 100
-                    y_offset = 100
+                x_offset = 1e20
+                y_offset = 1e20
+                # y_height = 0
+                for i in range(1, 4):
+                    if(len(root[0]) > 1):
+                        # iam db require sensor location offset
+                        x_offset = min(x_offset, float(root[0][i].attrib['x']))
+                        y_offset = min(y_offset, float(root[0][i].attrib['y']))
+                        # y_height = max(y_height, float(root[0][i].attrib['y']))
+                    else:
+                        # no offset needed when we capture the text
+                        x_offset = 100
+                        y_offset = 100
 
-            # y_height -= y_offset
-            x_offset -= 100
-            y_offset -= 100
+                # y_height -= y_offset
+                x_offset -= 100
+                y_offset -= 100
 
-            for stroke in root[1].findall('Stroke'):
-                points = []
-                for point in stroke.findall('Point'):
-                    points.append([float(point.attrib['x'])-x_offset,float(point.attrib['y'])-y_offset])
-                result.append(points)
-            return result
+                for stroke in root[1].findall('Stroke'):
+                    points = []
+                    for point in stroke.findall('Point'):
+                        points.append([float(point.attrib['x'])-x_offset,float(point.attrib['y'])-y_offset])
+                    result.append(points)
+                return result
+            except:
+                return result
         
         # function to read each individual xml file
         def getAscii(filename, line_number, stroke_filename):
@@ -86,12 +88,16 @@ class DataLoader():
                     return ""                    
             except:                
                 rsg_stroke_filename = stroke_filename.replace('lineStrokes', 'ascii').replace('xml', 'txt')
-                with open(rsg_stroke_filename, "r") as f:
-                    s = f.read()
+                try:
+                    # catch situation where ascii file is missing during capture
+                    with open(rsg_stroke_filename, "r") as f:
+                        s = f.read()
 
-                s = s[s.find("CSR"):]
-                s = s.split("\n")[1]
-                return s                 
+                    s = s[s.find("CSR"):]
+                    s = s.split("\n")[1]
+                    return s                 
+                except:
+                    return ""
                 
         # converts a list of arrays into a 2d numpy int16 array
         def convert_stroke_to_array(stroke):
@@ -135,7 +141,7 @@ class DataLoader():
                 # print(ascii_file)
                 # print('Ascii:')
                 # print(ascii)
-                if len(ascii) > 10:
+                if len(ascii) > 10 and len(stroke) > 0:
                     strokes.append(stroke)
                     asciis.append(ascii)
                 else:
